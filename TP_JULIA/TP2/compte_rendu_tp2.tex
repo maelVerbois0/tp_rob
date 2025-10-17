@@ -1,0 +1,182 @@
+\documentclass[a4paper,11pt]{article}
+
+% ====================
+% PACKAGES DE BASE
+% ====================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{siunitx}
+
+% ====================
+% MISE EN PAGE
+% ====================
+\geometry{margin=2.5cm}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+% ====================
+% INFORMATIONS DU DOCUMENT
+% ====================
+\title{\textbf{Compte rendu du TP2}\\[4pt]
+\large Modélisation de la distance moyenne au plus proche voisin (DMPPV)}
+\author{Groupe : \textit{Maël Verbois, Jules Onée, Reyen Selmi} \\[2pt] Cours : ROB}
+
+
+% ====================
+% DOCUMENT
+% ====================
+\begin{document}
+
+\maketitle
+
+
+% ====================
+% INTRODUCTION
+% ====================
+\section{Compte Rendu}
+L’objectif de ce travail est de modéliser et de résoudre le problème d'optimisation combinatoire associé à la fragmentation
+du paysage. L'indicateur utilisé pour la mesure de la fragmentation est la distance moyenne au plus proche voisin (DMPPV).
+On modélisera le problème sous la forme d'un problème d'optimisation combinatoire fractionnaire avec pour fonction objectif une 
+fraction rationelle. On résoudra ce problème à l'aide de l'algorithme de Dinkelbach implémentée en Julia en utilisant Gurobi comme solveur de PLNE.
+Finalement on étudiera le complexité temporelle sur des instances de tailles variables.
+
+% ====================
+% QUESTION i
+% ====================
+
+\subsection*{Question 1 -  Modéliser le problème de la sélection d'un ensemble de parcelles d'aire totale comprise
+entre Amin et Amax, de coût total inférieur ou égal à B et qui minimise dmppv.
+}
+
+On cherche à modéliser le problème de sélection d’un ensemble de parcelles de sorte que :
+\begin{itemize}
+    \item l’aire totale des parcelles sélectionnées soit comprise entre $A_{\min}$ et $A_{\max}$,
+    \item le coût total ne dépasse pas un budget $B$,
+    \item et la distance moyenne au plus proche voisin (dmppv) soit minimisée.
+\end{itemize}
+
+On introduit pour cela les variables binaires de décision :
+\[
+s_{ij} =
+\begin{cases}
+1 & \text{si la parcelle } (i,j) \text{ est sélectionnée,}\\
+0 & \text{sinon.}
+\end{cases}
+\]
+
+On note :
+\begin{itemize}
+    \item $c_{ij}$ : le coût associé à la parcelle $(i,j)$.
+\end{itemize}
+
+
+La fonction objectif vise à minimiser la distance moyenne au plus proche voisin (DMPPV), qui sera définie dans la question suivante. Le modèle général s’écrit donc :
+\[
+\begin{aligned}
+\min \quad & DMPPV(s) \\
+\text{sous contraintes} \quad &
+\begin{cases}
+A_{\min} \leq \displaystyle\sum_{i,j} a_{ij} s_{ij} \leq A_{\max},\\[8pt]
+\displaystyle\sum_{i,j} c_{ij} s_{ij} \leq B,\\[8pt]
+s_{ij} \in \{0,1\}, \quad \forall (i,j).
+\end{cases}
+\end{aligned}
+\]
+
+% ====================
+% QUESTION ii
+% ====================
+\subsection{Question 2 -  Écrire le modèle sous la forme d'un programme d'optimisation combinatoire fractionnaire, où les fractions sont des ratios de deux fonctions linéaires.}
+
+On a facilement par la définition
+\[
+DMPPV =
+\frac{1}{\sum_{i,j} s_{ij}} 
+\cdot 
+\sum_{i,j} 
+\min \left\{ d_{(i,j),(k,l)} \;\big|\; (i,j) \neq (k,l) \right\}, 
+\]
+\[
+\text{avec $d_{(i,j),(k,l)}$ la distance euclidienne entre la parcelle $(i,j)$ et la parcelle $(k,l)$.}
+\]
+La difficulté réside dans l'expression de la distance du voisin le plus proche d'une parcelle $s_{ij}$.
+Pour exprimer cette quantité comme une fonction linéaire on introduit : 
+\begin{itemize}
+    \item $d(i, j, k, l)$ la distance entre la parcelle $(i,j)$ et la parcelle $(k,l)$
+    \item { $ 
+    m(i, j, k, l) = 
+    \begin{cases}
+        1 & \shortstack[l]{si les parcelles $(i,j),(k,l)$ sont leurs voisines les plus \\ proches respectives} \\
+        0 & \text{sinon.}
+    \end{cases}
+        $
+    }
+\end{itemize}
+Ce qui nous donne l'expression suivante 
+
+\[
+    DMPPV = \frac{1}{\sum_{i,j} s_{ij}} 
+    \cdot 
+    \sum_{i,j,k,l \;\big|\; (i,j) \neq (k,l)} m(i,j,k,l) \cdot d(i,j,k,l) 
+\]
+
+Il faut aussi modéliser les contraintes suivantes pour garantir les propriétés des $m(i,j,kl)$
+\begin{itemize}
+    \item Chaque parcelle $(i,j)$ n'a qu'un seul voisin considéré comme le plus proche pour éviter les doubles comptages
+    \item Deux parcelles $(i,j)$ et $(k,l)$ ne peuvent être considérées comme plus proches que si elles sont sélectionnée
+\end{itemize}
+Finalement, on obtient le modèle global suivant : 
+
+\[
+\begin{aligned}
+\min \quad & DMPPV(s,m) =
+\frac{
+\displaystyle\sum_{i,j,k,l \;\big|\; (i,j) \neq (k,l)} m(i,j,k,l) \cdot d(i,j,k,l)
+}{
+\displaystyle\sum_{i,j} s_{ij}
+} \\[4pt]
+\text{sous contraintes} \quad &
+\begin{cases}
+A_{\min} \leq \displaystyle\sum_{i,j}  s_{ij} \leq A_{\max},\\[4pt]
+\displaystyle\sum_{i,j} c_{ij} s_{ij} \leq B,\\[4pt]
+\sum_{k,l \;\big|\; (i,j) \neq (k,l)} m(i,j,k,l) = 1, \quad \forall (i,j),\\[2pt]
+m(i,j,k,l) \leq s_{ij}, \quad m(i,j,k,l) \leq s_{k,l}, \quad \forall (i,j) \neq (k,l),\\[2pt]
+s_{ij} \in \{0,1\}, \quad \forall (i,j),\\
+m(i,j,k,l) \in \{0,1\}, \quad \forall (i,j) \neq (k,l)
+\end{cases}
+\end{aligned}
+\]
+% ====================
+% QUESTION iii
+% ====================
+\section{Résolution du problème}
+
+% Parle ici de la méthode utilisée : reformulation, linéarisation, approche exacte ou heuristique, etc.
+
+% ====================
+% CONCLUSION
+% ====================
+\section{Conclusion}
+
+Ce TP a permis de modéliser le problème de sélection optimale de parcelles
+en considérant à la fois des contraintes d’aire, de budget et de proximité spatiale.
+Les prochaines étapes consistent à implémenter le modèle dans un solveur d’optimisation
+et à analyser la sensibilité des résultats en fonction des paramètres $A_{\min}$, $A_{\max}$ et $B$.
+
+\end{document}
