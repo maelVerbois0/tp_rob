@@ -165,18 +165,104 @@ m(i,j,k,l) \in \{0,1\}, \quad \forall (i,j) \neq (k,l)
 % ====================
 % QUESTION iii
 % ====================
-\section{Résolution du problème}
+\subsection{Question 3 - Résoudre l'instance présentée ci-dessous par l'algorithme de Dinkelbach / Question 4 : Pour chacune des 3 instances, donner le temps de calcul total, le nombre total de noeuds
+développés dans l'arbre de recherche, le nombre d'itérations de l'algorithme de Dinkelbach, la valeur de la solution (valeur de dmppv) et les parcelles retenues.
+}
 
-% Parle ici de la méthode utilisée : reformulation, linéarisation, approche exacte ou heuristique, etc.
+On obtient les résultats suivants pour les 3 instances du sujet : 
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/solution1_output.png}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/solution2_output.png}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/solution3_output.png}
+\end{figure}
+
+\subsection{Question 5 - Étudier le comportement de la méthode proposée en fonction de la taille des instances.
+Pour cela, on engendrera aléatoirement des jeux d'essai}
+
+Afin d'engendrer des instances aléatoires, on fait quelques hypothèses sur notre génération : 
+
+
+On définit trois paramètres pour l'instance : 
+\begin{itemize}
+    \item Soit $n$ la dimension de la matrice des coûts $C = (c_{ij}) \in \mathbb{Z}^{n \times n}$, générée aléatoirement avec des valeurs multiples de 10 tirées uniformément entre 10 et $n^2$.  
+    \item $A_{\min}$ : nombre minimal d'éléments sélectionnés, choisi uniformément dans l'intervalle $[\alpha n^2, \beta n^2]$,
+    \item $A_{\max}$ : nombre maximal d'éléments sélectionnés, défini comme $A_{\max} = A_{\min} + \delta$, avec $\delta$ uniforme dans $[0, \gamma n^2]$,
+    \item $B$ : somme sur un sous-ensemble de $A_{\min}$ éléments choisis uniformément dans $C$.
+\end{itemize}
+
+\subsection*{Valeurs par défaut des coefficients}
+Les coefficients par défaut sont :
+\[
+\alpha = 0.3, \quad
+\beta = 0.6, \quad
+\gamma = 0.1
+\]
+Ils permettent de contrôler la cohérence de l'instance :
+\begin{itemize}
+    \item $\alpha$ et $\beta$ définissent la plage de $A_{\min}$, assurant que le nombre minimal d'éléments sélectionnés est proportionnel à $n^2$,
+    \item $\gamma$ contrôle la variation possible entre $A_{\min}$ et $A_{\max}$,
+\end{itemize}
+
+La génération de l'instance garantit ainsi que :
+\[
+A_{\min} \leq |S| \leq A_{\max}, \quad \sum_{(i,j) \in S} c_{ij} = B
+\]
+pour un sous-ensemble $S$ de la matrice $C$.
+
+\subsection{ Exemple d'instance générée aléatoirement}
+
+
+\[
+C =
+\begin{bmatrix}
+20 & 20 & 30 & 30 & 50 & 20 & 70 & 70 & 40 & 70\\
+10 & 20 & 80 & 70 & 40 & 60 & 10 & 70 & 70 & 100\\
+10 & 100 & 40 & 70 & 90 & 40 & 90 & 30 & 10 & 20\\
+90 & 60 & 50 & 40 & 60 & 20 & 70 & 80 & 80 & 70\\
+20 & 50 & 70 & 60 & 20 & 70 & 80 & 100 & 100 & 30\\
+70 & 20 & 80 & 10 & 80 & 90 & 90 & 70 & 90 & 100\\
+80 & 40 & 70 & 40 & 60 & 20 & 90 & 80 & 30 & 90\\
+60 & 10 & 40 & 30 & 50 & 100 & 100 & 40 & 100 & 20\\
+90 & 20 & 40 & 80 & 70 & 20 & 30 & 50 & 80 & 70\\
+80 & 30 & 80 & 10 & 100 & 80 & 100 & 90 & 20 & 60
+\end{bmatrix}
+\]
+
+avec les paramètres :
+
+\[
+A_{\min} = 44, \quad
+A_{\max} = 53, \quad
+B = 1437, \quad
+n = 10
+\]
+
+En lançant l'algorithme sur des instances de taille 10 à 30 (3 fois par instance puis en faisant la moyenne des temps), 
+On obtient le graphe de complexité temporelle suivant :
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/temps_execution_lineaire.png}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{figs/temps_execution_log.png}
+\end{figure}
+
+On remarque donc que même avec la spécificité de l'instance, 
+la complexité temporelle reste exponentielle
 % ====================
 % CONCLUSION
 % ====================
-\section{Conclusion}
-
-Ce TP a permis de modéliser le problème de sélection optimale de parcelles
-en considérant à la fois des contraintes d’aire, de budget et de proximité spatiale.
-Les prochaines étapes consistent à implémenter le modèle dans un solveur d’optimisation
-et à analyser la sensibilité des résultats en fonction des paramètres $A_{\min}$, $A_{\max}$ et $B$.
 
 \end{document}
