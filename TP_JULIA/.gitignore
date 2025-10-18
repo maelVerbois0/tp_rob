@@ -20,3 +20,10 @@
 # Fichiers de build
 *.dvi
 *.ps
+
+#environnement virtuel
+venv/
+.env/
+.venv/
+env/
+ENV/
