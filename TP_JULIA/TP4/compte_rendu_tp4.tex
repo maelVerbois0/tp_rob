@@ -1,0 +1,133 @@
+%! TEX root = .
+\documentclass[a4paper,11pt]{article}
+
+% ====================
+% PACKAGES DE BASE
+% ====================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{siunitx}
+
+% ====================
+% MISE EN PAGE
+% ====================
+\geometry{margin=2.5cm}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+    citecolor=blue
+}
+
+% ====================
+% INFORMATIONS DU DOCUMENT
+% ====================
+\title{\textbf{Compte rendu du TP4}\\[4pt]
+\large Exploitation durable de la forêt}
+\author{Groupe : \textit{Maël Verbois, Jules Onée, Reyen Selmi} \\[2pt] Cours : ROB}
+
+
+% ====================
+% DOCUMENT
+% ====================
+\begin{document}
+
+\maketitle
+
+\section{Compte Rendu}
+% ===========================
+L’objectif de ce travail pratique est d’étudier un problème d’optimisation combinatoire inspiré de la gestion durable d’une forêt. 
+L’exploitation forestière doit être planifiée de manière à préserver deux espèces animales dont les habitats dépendent des parcelles coupées ou conservées. 
+Ce TP vise à formuler ce problème sous forme d’un programme linéaire en variables mixtes, puis à en proposer une version quadratique et sa linéarisation totale. 
+Nous comparerons ensuite les performances des différentes approches sur plusieurs instances et analyserons l’impact de contraintes supplémentaires sur la structure du problème.
+
+% ===========================
+\section{Formulation du modèle initial (P1)}
+% ===========================
+\subsection{Présentation du modèle}
+% → Ici, tu pourras insérer la formulation mathématique de (P1) en environnement align ou cases
+% Exemple :
+
+
+\[
+\begin{aligned}
+\max_{x,d} \quad & w_1 \sum_{(i,j)\in M\times N} t_{ij}(1 - x_{ij}) + w_2 g l \sum_{(i,j)\in M\times N} (4x_{ij} - d_{ij}) \\
+\text{sous contraintes} \quad &
+\begin{cases}
+d_{ij} \ge \sum_{(k,l)\in A_{ij}} x_{kl} - |A_{ij}|(1 - x_{ij}) \quad \forall (i,j)\in M\times N,\\[8pt]
+d_{ij} \ge 0, \quad x_{ij}\in \{0,1\}
+\end{cases}
+\end{aligned}
+\]
+
+\subsection{Interprétation des variables et paramètres}
+
+\begin{itemize}
+    \item $M$ et $N$ : dimension de la matrice représentant la forêt
+    \item \item $A_{ij}$ : ensemble des indices $(k,l)$ correspondant aux parcelles adjacentes à $(i,j)$ dans la matrice $M \times N$.
+    \item $g$ : population attendue de l'espèce $e_2$ par kilomètre de lisière.
+    \item $l$ : longueur du côté d’une parcelle carrée.
+    \item $x_{ij} \in \{0,1\}$ : variable binaire associée à la parcelle $(i,j)$
+    \begin{itemize}
+        \item $x_{ij} = 1$ si la parcelle $(i,j)$ est \textbf{non coupée}
+        \item $x_{ij} = 0$ si la parcelle $(i,j)$ est \textbf{coupée}
+    \end{itemize}
+
+    \item {$d_{ij} \ge 0$ : variable continue valant à l'optimum:
+    
+    \begin{itemize}
+    \item $0$ si la parcelle $x_{ij}$ est coupée $(x_{ij} = 0)$ car le terme $|A_{ij}|(1-x_{ij})$ désactive la contrainte
+    \item $\sum_{(k,l)\in A_{ij}} x_{kl}$ sinon soit le nombre de côtés de la parcelle $s_{ij}$ qui sont adjacents à des parcelles non coupées 
+    \end{itemize} 
+    
+    Tout cela garantit bien que dans l'objectif les termes $(4x_{ij} - d_{ij})$ représentent le nombre de côtés étant une lisière pour les parcelles $(s_{ij})$ et donc 
+    $g l \sum_{(i,j)\in M\times N} (4x_{ij} - d_{ij})$ est la population attendue de l'espèce 2}
+    \item $t_{ij} \ge 0$ : population attendue de l'espèce $e_1$ dans la parcelle $(i,j)$ si elle est coupée.
+    Donc $\sum_{(i,j)\in M\times N} t_{ij}(1 - x_{ij})$ est la population attendue le l'espèce 1
+    \item $w_1, w_2$ : coefficients de pondération correspondant à l’importance relative des deux espèces dans la fonction objectif.
+\end{itemize}
+
+% ===========================
+\section{Programme quadratique (P2)}
+% ===========================
+% → Tu détailleras ici la modélisation quadratique et son interprétation.
+
+% ===========================
+\section{Linéarisation du programme (P2)}
+% ===========================
+% → Présentation de la linéarisation et démonstration de la TU.
+
+% ===========================
+\section{Résolution numérique}
+% ===========================
+\subsection{Description des instances}
+% → Décrire les données des instances tests
+\subsection{Résultats expérimentaux}
+% → Insérer tableaux et figures des résultats
+\subsection{Comparaison des approches}
+% → Comparaison en temps de calcul et qualité de solution
+
+% ===========================
+\section{Étude de sensibilité}
+% ===========================
+% → Étude de la contrainte sur le nombre minimal de parcelles non coupées.
+
+% ===========================
+\section{Conclusion}
+% ===========================
+% → Conclusion synthétique sur les approches, performances et perspectives.
+
+% ===========================
+\end{document}
