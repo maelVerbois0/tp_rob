@@ -1,0 +1,22 @@
+# Ignore fichiers LaTeX temporaires
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.nav
+*.snm
+
+# Fichiers de build
+*.dvi
+*.ps
